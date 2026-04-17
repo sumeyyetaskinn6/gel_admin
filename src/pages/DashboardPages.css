@@ -1,0 +1,19 @@
+.dashboard-page-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 28px;
+  box-shadow: 0 6px 20px rgba(11, 35, 60, 0.08);
+}
+
+.dashboard-page-card h1 {
+  margin: 0 0 10px;
+  color: #1b2843;
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+.dashboard-page-card p {
+  margin: 0;
+  color: #5d677d;
+  font-size: 16px;
+}

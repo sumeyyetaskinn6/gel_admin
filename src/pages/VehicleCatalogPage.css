@@ -1,0 +1,257 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.veh-page {
+  --veh-ink: #1a1d21;
+  --veh-muted: #6c757d;
+  --veh-border: #dee2e6;
+  --veh-green: #34a853;
+  max-width: 1100px;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--veh-ink);
+}
+
+.veh-page__head {
+  margin-bottom: 24px;
+}
+
+.veh-page__title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.veh-page__sub {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: var(--veh-muted);
+  line-height: 1.5;
+  max-width: 640px;
+}
+
+.veh-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+
+@media (max-width: 900px) {
+  .veh-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.veh-panel {
+  background: #fff;
+  border: 1px solid var(--veh-border);
+  border-radius: 12px;
+  padding: 16px 16px 18px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  min-height: 280px;
+}
+
+.veh-panel__title {
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--veh-muted);
+}
+
+.veh-context {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--veh-green);
+}
+
+.veh-hint {
+  margin: 0;
+  font-size: 14px;
+  color: var(--veh-muted);
+  flex: 1;
+}
+
+.veh-list {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  flex: 1;
+  overflow-y: auto;
+  max-height: 320px;
+}
+
+.veh-list > li {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.veh-list--models > li {
+  display: block;
+}
+
+.veh-list--models {
+  margin-bottom: 14px;
+}
+
+.veh-model-li {
+  margin-bottom: 6px;
+}
+
+.veh-list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid var(--veh-border);
+}
+
+.veh-side-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.veh-text-btn {
+  border: none;
+  background: none;
+  padding: 6px 8px;
+  font: 600 13px 'Inter', sans-serif;
+  color: #1864ab;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.veh-text-btn:hover {
+  text-decoration: underline;
+  background: rgba(24, 100, 171, 0.06);
+}
+
+.veh-edit-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 4px 0;
+}
+
+.veh-edit-row .veh-input {
+  flex: 1;
+  min-width: 120px;
+}
+
+.veh-edit-row--model {
+  padding: 6px 0;
+}
+
+.veh-btn--ghost {
+  background: #fff;
+  border: 1px solid var(--veh-border);
+  color: var(--veh-ink);
+}
+
+.veh-btn--ghost:hover {
+  background: #f8f9fa;
+}
+
+.veh-list-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--veh-border);
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.veh-list-item:hover {
+  background: #f8faf9;
+}
+
+.veh-list-item--active {
+  border-color: var(--veh-green);
+  background: rgba(52, 168, 83, 0.08);
+}
+
+.veh-list-item__name {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.veh-list-item__meta {
+  font-size: 12px;
+  color: var(--veh-muted);
+}
+
+.veh-icon-btn {
+  width: 36px;
+  min-width: 36px;
+  border: 1px solid var(--veh-border);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--veh-muted);
+  cursor: pointer;
+  align-self: stretch;
+}
+
+.veh-icon-btn:hover {
+  color: #c92a2a;
+  border-color: #fcc2c2;
+  background: #fff5f5;
+}
+
+.veh-add {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.veh-input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--veh-border);
+  border-radius: 8px;
+  font: 500 14px 'Inter', sans-serif;
+}
+
+.veh-btn {
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.veh-btn--primary {
+  background: var(--veh-green);
+  color: #fff;
+}
+
+.veh-btn--primary:hover {
+  filter: brightness(1.05);
+}
