@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { MOCK_BY_ROLE } from '../data/userManagementMock'
 import './DriverCourierApprovalPage.css'
 
 const WEEKDAY_TR = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi']
@@ -19,66 +20,39 @@ function build31DayCards(year, monthIndex) {
 
 const DAY_CARDS = build31DayCards(2026, 0)
 
-const APPLICANT_PHOTO = '/car.png'
+const ROLE_ASSET = {
+  driver: '/carrr.png',
+  courier: '/bike.png',
+}
 
-const MOCK_DRIVER_APPLICATIONS = [
-  {
-    id: 'd1',
-    name: 'Burak Yazar',
-    note:
-      'Başvuru yazısı, Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy.',
-    photo: APPLICANT_PHOTO,
-  },
-  {
-    id: 'd2',
-    name: 'Ayşe Kaya',
-    note:
-      'Başvuru yazısı, Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy.',
-    photo: APPLICANT_PHOTO,
-  },
-  {
-    id: 'd3',
-    name: 'Mehmet Öz',
-    note:
-      'Başvuru yazısı, Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy.',
-    photo: APPLICANT_PHOTO,
-  },
-  {
-    id: 'd4',
-    name: 'Zeynep Arslan',
-    note:
-      'Başvuru yazısı, Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy.',
-    photo: APPLICANT_PHOTO,
-  },
-]
-
-const MOCK_COURIER_APPLICATIONS = [
-  {
-    id: 'c1',
-    name: 'Can Demir',
-    note:
-      'Kurye başvurusu metni, Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy.',
-    photo: APPLICANT_PHOTO,
-  },
-  {
-    id: 'c2',
-    name: 'Elif Şahin',
-    note:
-      'Kurye başvurusu metni, Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy.',
-    photo: APPLICANT_PHOTO,
-  },
-]
-
-function FolderIcon() {
+function InfoItem({ label, value }) {
+  if (value === undefined || value === null || value === '') return null
   return (
-    <svg className="approval-doc-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2v11z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <div className="approval-info-item">
+      <span className="approval-info-item__label">{label}</span>
+      <span className="approval-info-item__value">{value}</span>
+    </div>
+  )
+}
+
+function DocumentItem({ label, url }) {
+  if (!url) return null
+  return (
+    <a href={url} target="_blank" rel="noopener noreferrer" className="approval-doc-item" title={label}>
+      <span className="approval-doc-item__icon" aria-hidden>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M14 2H7a2 2 0 00-2 2v16a2 2 0 002 2h10a2 2 0 002-2V9l-5-7z"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinejoin="round"
+          />
+          <path d="M14 2v7h5" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+          <path d="M9 14h6M9 18h6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+      </span>
+      <span className="approval-doc-item__label">{label}</span>
+    </a>
   )
 }
 
@@ -101,6 +75,8 @@ function XIcon() {
 function DriverCourierApprovalPage() {
   const [activeTab, setActiveTab] = useState('driver')
   const [selectedDayIndex, setSelectedDayIndex] = useState(0)
+  const [decisionById, setDecisionById] = useState({})
+  const [confirmState, setConfirmState] = useState(null)
   const dayCardRefs = useRef([])
 
   useEffect(() => {
@@ -111,10 +87,26 @@ function DriverCourierApprovalPage() {
     })
   }, [selectedDayIndex])
 
-  const applications = useMemo(
-    () => (activeTab === 'driver' ? MOCK_DRIVER_APPLICATIONS : MOCK_COURIER_APPLICATIONS),
-    [activeTab],
-  )
+  useEffect(() => {
+    if (!confirmState) return
+    const onKey = (e) => {
+      if (e.key === 'Escape') setConfirmState(null)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [confirmState])
+
+  const applications = useMemo(() => MOCK_BY_ROLE[activeTab] ?? [], [activeTab])
+
+  const openConfirm = (application, action) => {
+    setConfirmState({ applicationId: application.id, name: application.name, action })
+  }
+
+  const applyDecision = () => {
+    if (!confirmState) return
+    setDecisionById((prev) => ({ ...prev, [confirmState.applicationId]: confirmState.action }))
+    setConfirmState(null)
+  }
 
   return (
     <section className="approval-page">
@@ -173,14 +165,50 @@ function DriverCourierApprovalPage() {
         <div className="approval-list">
           {applications.map((app) => (
             <article key={app.id} className="approval-row">
-              <img className="approval-row__photo" src={app.photo} alt="" width={96} height={96} />
+              <img className="approval-row__photo" src={ROLE_ASSET[activeTab]} alt="" width={96} height={96} />
               <div className="approval-row__body">
                 <h2 className="approval-row__name">{app.name}</h2>
-                <p className="approval-row__note">{app.note}</p>
-                <button type="button" className="approval-doc-btn">
-                  <FolderIcon />
-                  Belgeler
-                </button>
+                <div className="approval-info-grid">
+                  <InfoItem label="Telefon Numarası" value={app.phone} />
+                  <InfoItem label="Ad" value={app.firstName} />
+                  <InfoItem label="Soyad" value={app.lastName} />
+                  <InfoItem label="E-posta Adresi" value={app.email} />
+                  <InfoItem label="GSM Numarası" value={app.gsm} />
+                  <InfoItem label="Cinsiyet" value={app.gender} />
+                  <InfoItem label="IBAN Numarası" value={app.iban} />
+
+                  {activeTab === 'courier' && (
+                    <>
+                      <InfoItem label="Araç Tipi" value={app.vehicleType} />
+                      <InfoItem label="Marka" value={app.vehicleBrand} />
+                      <InfoItem label="Model" value={app.vehicleModel} />
+                      <InfoItem label="Yıl" value={app.vehicleYear} />
+                      <InfoItem label="Renk" value={app.vehicleColor} />
+                    </>
+                  )}
+
+                  {activeTab === 'driver' && (
+                    <>
+                      <InfoItem label="Marka" value={app.vehicleBrand} />
+                      <InfoItem label="Model" value={app.vehicleModel} />
+                      <InfoItem label="Yıl" value={app.vehicleYear} />
+                      <InfoItem label="Renk" value={app.vehicleColor} />
+                      <InfoItem label="Plaka" value={app.plate} />
+                    </>
+                  )}
+                </div>
+
+                <div className="approval-docs">
+                  <h3 className="approval-docs__title">Yüklenen Belgeler</h3>
+                  <div className="approval-docs__grid">
+                    <DocumentItem label="Ehliyet Ön Yüzü" url={app.licenseFrontUrl} />
+                    <DocumentItem label="Ehliyet Arka Yüzü" url={app.licenseBackUrl} />
+                    <DocumentItem label="Ruhsat Ön Yüzü" url={app.registrationFrontUrl} />
+                    <DocumentItem label="Ruhsat Arka Yüzü" url={app.registrationBackUrl} />
+                    <DocumentItem label="Sabıka Kaydı" url={app.criminalRecordUrl} />
+                    {activeTab === 'courier' && <DocumentItem label="P1 Belgesi" url={app.p1DocumentUrl} />}
+                  </div>
+                </div>
               </div>
               <div className="approval-row__side">
                 <div className="approval-dots" aria-label="Ön değerlendirme">
@@ -188,19 +216,72 @@ function DriverCourierApprovalPage() {
                   <span className="approval-dots__item" />
                   <span className="approval-dots__item approval-dots__item--on" />
                 </div>
-                <div className="approval-actions">
-                  <button type="button" className="approval-btn approval-btn--approve" aria-label="Onayla">
-                    <CheckIcon />
-                  </button>
-                  <button type="button" className="approval-btn approval-btn--reject" aria-label="Reddet">
-                    <XIcon />
-                  </button>
-                </div>
+                {decisionById[app.id] ? (
+                  <span
+                    className={`approval-result-pill approval-result-pill--${decisionById[app.id] === 'approve' ? 'approve' : 'reject'}`}
+                  >
+                    {decisionById[app.id] === 'approve' ? 'Onaylandı' : 'Reddedildi'}
+                  </span>
+                ) : (
+                  <div className="approval-actions">
+                    <button
+                      type="button"
+                      className="approval-btn approval-btn--approve"
+                      aria-label="Onayla"
+                      onClick={() => openConfirm(app, 'approve')}
+                    >
+                      <CheckIcon />
+                    </button>
+                    <button
+                      type="button"
+                      className="approval-btn approval-btn--reject"
+                      aria-label="Reddet"
+                      onClick={() => openConfirm(app, 'reject')}
+                    >
+                      <XIcon />
+                    </button>
+                  </div>
+                )}
               </div>
             </article>
           ))}
         </div>
       </div>
+
+      {confirmState && (
+        <div
+          className="approval-confirm-backdrop"
+          role="presentation"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setConfirmState(null)
+          }}
+        >
+          <div className="approval-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="approval-confirm-title">
+            <h2 id="approval-confirm-title" className="approval-confirm-title">
+              {confirmState.action === 'approve' ? 'Başvuruyu onayla' : 'Başvuruyu reddet'}
+            </h2>
+            <p className="approval-confirm-text">
+              <strong>{confirmState.name}</strong> için
+              {' '}
+              {confirmState.action === 'approve' ? 'onay işlemini' : 'red işlemini'}
+              {' '}
+              gerçekleştirmek istediğinize emin misiniz?
+            </p>
+            <div className="approval-confirm-actions">
+              <button type="button" className="approval-confirm-btn approval-confirm-btn--ghost" onClick={() => setConfirmState(null)}>
+                Vazgeç
+              </button>
+              <button
+                type="button"
+                className={`approval-confirm-btn ${confirmState.action === 'approve' ? 'approval-confirm-btn--approve' : 'approval-confirm-btn--reject'}`}
+                onClick={applyDecision}
+              >
+                {confirmState.action === 'approve' ? 'Evet, onayla' : 'Evet, reddet'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   )
 }

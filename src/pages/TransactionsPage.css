@@ -3,13 +3,6 @@
   gap: 22px;
 }
 
-.summary-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.summary-card,
 .map-card,
 .mini-chart-card,
 .trips-card {
@@ -19,34 +12,13 @@
   box-shadow: 0 6px 20px rgba(15, 30, 50, 0.08);
 }
 
-.summary-card {
-  min-height: 96px;
-  padding: 16px 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.summary-card h3 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 700;
-  color: #2c3547;
-}
-
-.summary-badge {
-  width: 40px;
-  height: 40px;
-  border-radius: 999px;
-  background: #209840;
-  color: #ffffff;
-  display: grid;
-  place-items: center;
-  font-weight: 700;
-}
-
 .map-card {
   padding: 16px;
+}
+
+.map-card--hero {
+  margin-top: 0;
+  padding: 18px;
 }
 
 .card-header {
@@ -81,6 +53,11 @@
   border: 2px solid #34a853;
   border-radius: 10px;
   overflow: hidden;
+}
+
+.map-card--hero .map-frame {
+  height: min(68vh, 620px);
+  min-height: 440px;
 }
 
 .map-frame iframe {
@@ -132,15 +109,15 @@
 }
 
 @media (max-width: 1200px) {
-  .summary-grid,
   .mini-chart-grid {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 640px) {
-  .map-frame {
-    height: 280px;
+  .map-card--hero .map-frame {
+    min-height: 300px;
+    height: 56vh;
   }
 
   .mini-chart-wrapper {

@@ -34,7 +34,7 @@ function LoginPage({ onLogin }) {
               <input type="password" placeholder="Start typing..." required />
             </label>
 
-            <button type="submit">Login</button>
+            <button type="submit">Giriş Yap</button>
           </form>
         </div>
       </section>

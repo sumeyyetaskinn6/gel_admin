@@ -18,6 +18,7 @@ function baseUser(id, firstName, lastName, phone, email, gsm, gender, registered
 function driverProfile(base, vehicle) {
   return {
     ...base,
+    locationEnabled: Boolean(vehicle.locationEnabled),
     iban: vehicle.iban,
     vehicleBrand: vehicle.brand,
     vehicleModel: vehicle.model,
@@ -35,6 +36,7 @@ function driverProfile(base, vehicle) {
 function courierProfile(base, vehicle) {
   return {
     ...base,
+    locationEnabled: Boolean(vehicle.locationEnabled),
     iban: vehicle.iban,
     vehicleType: vehicle.vehicleType,
     vehicleBrand: vehicle.brand,
@@ -55,6 +57,7 @@ export const MOCK_BY_ROLE = {
     driverProfile(
       baseUser('d1', 'Ahmet', 'Yılmaz', '+90 532 111 2233', 'ahmet.yilmaz@ornek.com', '+90 532 111 2233', 'Erkek', '2025-11-03'),
       {
+        locationEnabled: true,
         iban: 'TR12 0006 1000 0000 1234 56 78',
         brand: 'Ford',
         model: 'Focus',
@@ -66,6 +69,7 @@ export const MOCK_BY_ROLE = {
     driverProfile(
       baseUser('d2', 'Mehmet', 'Kaya', '+90 533 444 5566', 'mehmet.kaya@ornek.com', '+90 533 444 5566', 'Erkek', '2026-01-18'),
       {
+        locationEnabled: false,
         iban: 'TR33 0006 4000 1122 3344 55 66',
         brand: 'Renault',
         model: 'Clio',
@@ -77,6 +81,7 @@ export const MOCK_BY_ROLE = {
     driverProfile(
       baseUser('d3', 'Can', 'Öztürk', '+90 534 777 8899', 'can.ozturk@ornek.com', '+90 534 888 8899', 'Erkek', '2025-08-22'),
       {
+        locationEnabled: true,
         iban: 'TR45 0006 7011 8899 0012 34 56',
         brand: 'Volkswagen',
         model: 'Polo',
@@ -88,6 +93,7 @@ export const MOCK_BY_ROLE = {
     driverProfile(
       baseUser('d4', 'Burak', 'Şen', '+90 535 000 1122', 'burak.sen@ornek.com', '+90 535 000 1122', 'Erkek', '2024-12-09'),
       {
+        locationEnabled: false,
         iban: 'TR78 0006 2000 5566 7788 99 00',
         brand: 'Hyundai',
         model: 'i20',
@@ -99,6 +105,7 @@ export const MOCK_BY_ROLE = {
     driverProfile(
       baseUser('d5', 'Emre', 'Polat', '+90 536 333 4455', 'emre.polat@ornek.com', '+90 536 333 4455', 'Erkek', '2026-03-01'),
       {
+        locationEnabled: true,
         iban: 'TR90 0006 3000 9988 7766 55 44',
         brand: 'Fiat',
         model: 'Egea',
@@ -110,6 +117,7 @@ export const MOCK_BY_ROLE = {
     driverProfile(
       baseUser('d6', 'Kerem', 'Ak', '+90 537 666 7788', 'kerem.ak@ornek.com', '+90 537 666 7788', 'Erkek', '2025-05-14'),
       {
+        locationEnabled: false,
         iban: 'TR11 0006 5000 4433 2211 00 99',
         brand: 'Toyota',
         model: 'Corolla',
@@ -121,6 +129,7 @@ export const MOCK_BY_ROLE = {
     driverProfile(
       baseUser('d7', 'Onur', 'Çelik', '+90 538 999 0011', 'onur.celik@ornek.com', '+90 538 999 0011', 'Erkek', '2026-02-27'),
       {
+        locationEnabled: true,
         iban: 'TR22 0006 8000 1122 3344 55 66',
         brand: 'Opel',
         model: 'Corsa',
@@ -134,6 +143,7 @@ export const MOCK_BY_ROLE = {
     courierProfile(
       baseUser('c1', 'Ali', 'Veli', '+90 541 222 3344', 'ali.veli@ornek.com', '+90 541 222 3344', 'Erkek', '2025-10-11'),
       {
+        locationEnabled: true,
         iban: 'TR44 0006 9000 8877 6655 44 33',
         vehicleType: 'Motosiklet',
         brand: 'Yamaha',
@@ -145,6 +155,7 @@ export const MOCK_BY_ROLE = {
     courierProfile(
       baseUser('c2', 'Veli', 'Demir', '+90 542 555 6677', 'veli.demir@ornek.com', '+90 542 555 6677', 'Erkek', '2026-01-05'),
       {
+        locationEnabled: false,
         iban: 'TR55 0006 1001 2233 4455 66 77',
         vehicleType: 'Scooter',
         brand: 'Honda',
@@ -156,6 +167,7 @@ export const MOCK_BY_ROLE = {
     courierProfile(
       baseUser('c3', 'Zeki', 'Koç', '+90 543 888 9900', 'zeki.koc@ornek.com', '+90 543 888 9900', 'Erkek', '2024-07-30'),
       {
+        locationEnabled: true,
         iban: 'TR66 0006 2002 3344 5566 77 88',
         vehicleType: 'Motosiklet',
         brand: 'Kymco',

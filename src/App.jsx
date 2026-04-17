@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import DashboardLayout from './layouts/DashboardLayout'
+import AdminProfilePage from './pages/AdminProfilePage'
 import DriverCourierApprovalPage from './pages/DriverCourierApprovalPage'
 import HistoryRecordsPage from './pages/HistoryRecordsPage'
 import LoginPage from './pages/LoginPage'
@@ -56,6 +57,7 @@ function App() {
         <Route path="rating-complaint" element={<RatingComplaintPage />} />
         <Route path="app/faq" element={<FaqManagementPage />} />
         <Route path="app/vehicles" element={<VehicleCatalogPage />} />
+        <Route path="admin-profile" element={<AdminProfilePage />} />
       </Route>
 
       <Route

@@ -91,7 +91,11 @@ function Sidebar({ onLogout }) {
         </div>
 
         <div className="sidebar-bottom">
-          <div className="sidebar-profile">
+          <NavLink
+            to="/dashboard/admin-profile"
+            className={({ isActive }) => `sidebar-profile${isActive ? ' sidebar-profile--active' : ''}`}
+            aria-label="Admin profil sayfasını aç"
+          >
             <div>
               <p className="sidebar-profile-name">Ümit Cengiz Aktoprak</p>
               <p className="sidebar-profile-link">Profili Görüntüle</p>
@@ -101,10 +105,10 @@ function Sidebar({ onLogout }) {
               <span />
               <span />
             </span>
-          </div>
+          </NavLink>
 
           <button type="button" className="sidebar-logout" onClick={onLogout}>
-            Logout
+            Çıkış Yap
           </button>
         </div>
       </div>

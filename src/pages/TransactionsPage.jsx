@@ -27,12 +27,6 @@ function TransactionsPage() {
     { month: 'Ara', users: 2460, drivers: 1270, couriers: 960, trips: 8700 },
   ]
 
-  const summaryCards = [
-    { title: 'Surucu Basvurulari', value: 11 },
-    { title: 'Kurye Basvurulari', value: 8 },
-    { title: 'Sikayetler', value: 5 },
-  ]
-
   const miniCharts = [
     {
       title: 'Aktif Kullanici',
@@ -59,16 +53,7 @@ function TransactionsPage() {
 
   return (
     <section className="transactions-page">
-      <div className="summary-grid">
-        {summaryCards.map((card) => (
-          <article key={card.title} className="summary-card">
-            <h3>{card.title}</h3>
-            <div className="summary-badge">{card.value}</div>
-          </article>
-        ))}
-      </div>
-
-      <article className="map-card">
+      <article className="map-card map-card--hero">
         <header className="card-header">
           <h2>Canli Harita Takibi</h2>
           <span className="status-chip">Online</span>

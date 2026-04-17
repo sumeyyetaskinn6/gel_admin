@@ -52,8 +52,14 @@ function UserDetailPage() {
     return <Navigate to="/dashboard/user-management" replace />
   }
 
-  const { lat, lng } = getMockLiveLocation(user.id)
-  const mapSrc = `https://www.google.com/maps?q=${lat},${lng}&z=15&output=embed`
+  const isLocationEligibleRole = role === 'driver' || role === 'courier'
+  const isLocationOnline = isLocationEligibleRole && Boolean(user.locationEnabled)
+  const mapSrc = isLocationOnline
+    ? (() => {
+        const { lat, lng } = getMockLiveLocation(user.id)
+        return `https://www.google.com/maps?q=${lat},${lng}&z=15&output=embed`
+      })()
+    : null
 
   const driverTrips = MOCK_DRIVER_TRIPS_BY_USER_ID[user.id] ?? []
   const courierDeliveries = MOCK_COURIER_DELIVERIES_BY_USER_ID[user.id] ?? []
@@ -72,6 +78,11 @@ function UserDetailPage() {
           <p className="ud-meta">
             <span>{user.phone}</span>
             <span className="ud-badge">{ROLE_LABELS[role]}</span>
+            {isLocationEligibleRole && (
+              <span className={`ud-location-badge ${isLocationOnline ? 'ud-location-badge--online' : 'ud-location-badge--offline'}`}>
+                Konum {isLocationOnline ? 'Açık' : 'Kapalı'}
+              </span>
+            )}
             <span className="ud-meta__muted">Kayıt: {formatKayitTarihi(user.registeredAt)}</span>
           </p>
         </div>
@@ -129,13 +140,23 @@ function UserDetailPage() {
         )}
       </article>
 
-      <article className="ud-map-card">
-        <h2 className="ud-section-title">Canlı konum</h2>
-        <p className="ud-section-hint">Haritada gösterilen konum örnek (mock) veridir.</p>
-        <div className="ud-map-frame">
-          <iframe title={`${user.name} canlı konum`} src={mapSrc} loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
-        </div>
-      </article>
+      {isLocationEligibleRole && (
+        <article className="ud-map-card">
+          <h2 className="ud-section-title">Canlı konum</h2>
+          {isLocationOnline ? (
+            <>
+              <p className="ud-section-hint">Haritada gösterilen konum örnek (mock) veridir.</p>
+              <div className="ud-map-frame">
+                <iframe title={`${user.name} canlı konum`} src={mapSrc} loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
+              </div>
+            </>
+          ) : (
+            <p className="ud-offline-note">
+              Kullanıcı mobil uygulamada konum paylaşımını kapattığı için haritada canlı konum gösterilemiyor.
+            </p>
+          )}
+        </article>
+      )}
 
       {role === 'courier' && (
         <section className="ud-list-section" aria-labelledby="ud-courier-deliveries">
