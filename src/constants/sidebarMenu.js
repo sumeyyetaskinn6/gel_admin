@@ -19,6 +19,7 @@ export const sidebarSections = [
     items: [
       { label: 'SSS yönetimi', path: '/dashboard/app/faq' },
       { label: 'Araç bilgileri', path: '/dashboard/app/vehicles' },
+      { label: 'Sözleşmeler', path: '/dashboard/app/contracts' },
     ],
   },
 ]

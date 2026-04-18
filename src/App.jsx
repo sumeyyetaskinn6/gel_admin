@@ -8,6 +8,7 @@ import LoginPage from './pages/LoginPage'
 import RatingComplaintPage from './pages/RatingComplaintPage'
 import TrackingPage from './pages/TrackingPage'
 import TransactionsPage from './pages/TransactionsPage'
+import ContractsManagementPage from './pages/ContractsManagementPage'
 import FaqManagementPage from './pages/FaqManagementPage'
 import UserDetailPage from './pages/UserDetailPage'
 import UserManagementPage from './pages/UserManagementPage'
@@ -57,6 +58,7 @@ function App() {
         <Route path="rating-complaint" element={<RatingComplaintPage />} />
         <Route path="app/faq" element={<FaqManagementPage />} />
         <Route path="app/vehicles" element={<VehicleCatalogPage />} />
+        <Route path="app/contracts" element={<ContractsManagementPage />} />
         <Route path="admin-profile" element={<AdminProfilePage />} />
       </Route>
 
