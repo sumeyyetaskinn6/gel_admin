@@ -6,6 +6,8 @@ import DriverCourierApprovalPage from './pages/DriverCourierApprovalPage'
 import HistoryRecordsPage from './pages/HistoryRecordsPage'
 import LoginPage from './pages/LoginPage'
 import RatingComplaintPage from './pages/RatingComplaintPage'
+import RegionalDistributionPage from './pages/RegionalDistributionPage'
+import PricingSettingsPage from './pages/PricingSettingsPage'
 import TrackingPage from './pages/TrackingPage'
 import TransactionsPage from './pages/TransactionsPage'
 import ContractsManagementPage from './pages/ContractsManagementPage'
@@ -49,6 +51,7 @@ function App() {
         }
       >
         <Route index element={<Navigate to="transactions" replace />} />
+        <Route path="regional-distribution" element={<RegionalDistributionPage />} />
         <Route path="transactions" element={<TransactionsPage />} />
         <Route path="driver-courier-approval" element={<DriverCourierApprovalPage />} />
         <Route path="delivery-tracking" element={<TrackingPage />} />
@@ -59,6 +62,7 @@ function App() {
         <Route path="app/faq" element={<FaqManagementPage />} />
         <Route path="app/vehicles" element={<VehicleCatalogPage />} />
         <Route path="app/contracts" element={<ContractsManagementPage />} />
+        <Route path="app/pricing-settings" element={<PricingSettingsPage />} />
         <Route path="admin-profile" element={<AdminProfilePage />} />
       </Route>
 

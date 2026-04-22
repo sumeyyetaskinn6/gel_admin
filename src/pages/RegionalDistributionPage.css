@@ -1,0 +1,339 @@
+.regional-page {
+  width: 100%;
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: 8px max(0px, env(safe-area-inset-left)) calc(32px + env(safe-area-inset-bottom, 0px))
+    max(0px, env(safe-area-inset-right));
+  box-sizing: border-box;
+}
+
+.regional-page__head {
+  margin-bottom: 16px;
+}
+
+.regional-page__title {
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 24px;
+  line-height: 1.2;
+  color: #011631;
+}
+
+.regional-page__subtitle {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #5d6472;
+  font-weight: 500;
+  max-width: 62ch;
+}
+
+.regional-page__error {
+  color: #b42318;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.regional-page__loading {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: #5d6472;
+}
+
+.regional-map-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.regional-map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.regional-map-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.regional-map-legend__sw {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  border: 1px solid #94a3b8;
+  background: #e2e8f0;
+}
+
+.regional-map-legend__sw[data-variant='on'] {
+  border-color: #166534;
+  background: #34a853;
+}
+
+.regional-leaflet-root {
+  width: 100%;
+  height: min(70vh, 640px);
+  min-height: 360px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  background: #f1f5f9;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  z-index: 0;
+}
+
+.regional-leaflet-root .leaflet-container {
+  width: 100%;
+  height: 100%;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* İllere hover / tıklanabilir hissi (Leaflet yolları) */
+.regional-leaflet-root .leaflet-interactive {
+  cursor: pointer;
+  transition: filter 0.12s ease;
+}
+
+.regional-map-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #6b7280;
+}
+
+/* Seçili iller listesi */
+.regional-selected {
+  margin-top: 20px;
+  padding: 20px 22px 22px;
+  border-radius: 14px;
+  border: 1px solid #e8ecf0;
+  background: linear-gradient(165deg, #ffffff 0%, #f8fafb 100%);
+  box-shadow: 0 1px 3px rgba(1, 22, 49, 0.06);
+}
+
+.regional-selected__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #eef2f6;
+}
+
+.regional-selected__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #011631;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.regional-selected__count {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #166534;
+  background: #ecfdf3;
+  border: 1px solid #bbf7d0;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.regional-selected__empty {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #6b7280;
+  text-align: center;
+  padding: 20px 12px;
+  border-radius: 10px;
+  background: #f3f4f6;
+  border: 1px dashed #d1d5db;
+}
+
+.regional-selected__chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.regional-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 40px;
+  padding: 4px 4px 4px 14px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid #d1f0db;
+  box-shadow: 0 1px 2px rgba(30, 142, 62, 0.08);
+}
+
+.regional-chip__label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.3;
+  font-family: 'Inter', system-ui, sans-serif;
+  max-width: 28ch;
+}
+
+.regional-chip__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border: none;
+  border-radius: 50%;
+  background: #f0fdf4;
+  color: #6b7280;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  transition: background 0.15s ease, color 0.15s ease;
+  touch-action: manipulation;
+  font-family: system-ui, sans-serif;
+  padding: 0;
+}
+
+.regional-chip__remove:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.regional-chip__remove-icon {
+  position: relative;
+  top: -1px;
+  font-weight: 500;
+}
+
+/* Modal */
+.regional-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(1, 22, 49, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+  backdrop-filter: blur(3px);
+}
+
+.regional-modal {
+  width: min(400px, 100%);
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.16);
+  padding: 20px 22px;
+}
+
+.regional-modal__title {
+  margin: 0 0 10px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #011631;
+  line-height: 1.3;
+}
+
+.regional-modal__text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #374151;
+}
+
+.regional-modal__text strong {
+  color: #111827;
+}
+
+.regional-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.regional-btn {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Inter', system-ui, sans-serif;
+  cursor: pointer;
+  border: 1px solid transparent;
+  touch-action: manipulation;
+}
+
+.regional-btn--ghost {
+  background: #fff;
+  color: #374151;
+  border-color: #d1d5db;
+}
+
+.regional-btn--ghost:hover {
+  background: #f9fafb;
+}
+
+.regional-btn--primary {
+  background: #1e8e3e;
+  color: #fff;
+  border-color: #1e8e3e;
+}
+
+.regional-btn--primary:hover {
+  filter: brightness(1.05);
+}
+
+@media (max-width: 768px) {
+  .regional-page {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+
+  .regional-page__title {
+    font-size: 20px;
+  }
+
+  .regional-leaflet-root {
+    min-height: 320px;
+    height: 58vh;
+    border-radius: 10px;
+  }
+
+  .regional-selected {
+    margin-top: 16px;
+    padding: 16px 14px 18px;
+  }
+
+  .regional-modal__actions {
+    flex-direction: column-reverse;
+  }
+
+  .regional-btn {
+    width: 100%;
+  }
+}

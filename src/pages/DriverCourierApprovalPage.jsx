@@ -25,6 +25,10 @@ const ROLE_ASSET = {
   courier: '/bike.png',
 }
 
+function getDecisionKey(role, applicationId) {
+  return `${role}:${applicationId}`
+}
+
 const REJECT_SECTION = {
   REG: 'Kayıt bilgileri',
   VEH: 'Araç bilgileri',
@@ -166,10 +170,31 @@ function DriverCourierApprovalPage() {
     })
   }, [selectedDayIndex])
 
-  const applications = useMemo(() => MOCK_BY_ROLE[activeTab] ?? [], [activeTab])
+  const activeRole = activeTab === 'courier' || activeTab === 'rejected-courier' ? 'courier' : 'driver'
+  const isRejectedTab = activeTab === 'rejected-driver' || activeTab === 'rejected-courier'
+  const roleApplications = useMemo(() => MOCK_BY_ROLE[activeRole] ?? [], [activeRole])
+
+  const applications = useMemo(() => {
+    if (isRejectedTab) return []
+    return roleApplications
+  }, [isRejectedTab, roleApplications])
+
+  const rejectedApplications = useMemo(
+    () =>
+      roleApplications.filter((app) => decisionById[getDecisionKey(activeRole, app.id)] === 'reject'),
+    [roleApplications, decisionById, activeRole],
+  )
+
+  const latestRejectLogByKey = useMemo(() => {
+    const map = new Map()
+    for (const row of adminLog) {
+      if (!map.has(row.decisionKey)) map.set(row.decisionKey, row)
+    }
+    return map
+  }, [adminLog])
 
   const openApproveConfirm = (application) => {
-    setApproveModal({ applicationId: application.id, name: application.name })
+    setApproveModal({ applicationId: application.id, name: application.name, role: activeRole })
   }
 
   const closeRejectModal = useCallback(() => {
@@ -184,7 +209,7 @@ function DriverCourierApprovalPage() {
       applicationId: application.id,
       name: application.name,
       email: application.email,
-      role: activeTab,
+      role: activeRole,
       application,
     })
     setRejectReasonIds([])
@@ -224,7 +249,8 @@ function DriverCourierApprovalPage() {
 
   const applyApprove = () => {
     if (!approveModal) return
-    setDecisionById((prev) => ({ ...prev, [approveModal.applicationId]: 'approve' }))
+    const decisionKey = getDecisionKey(approveModal.role, approveModal.applicationId)
+    setDecisionById((prev) => ({ ...prev, [decisionKey]: 'approve' }))
     setApproveModal(null)
   }
 
@@ -235,9 +261,11 @@ function DriverCourierApprovalPage() {
     const byId = new Map(rejectChecklistItems.map((r) => [r.id, r]))
     const reasonLabels = rejectReasonIds.map((id) => byId.get(id)?.label).filter(Boolean)
     const now = new Date()
+    const decisionKey = getDecisionKey(rejectModal.role, rejectModal.applicationId)
     const logEntry = {
       id: `log-${now.getTime()}`,
       at: now.toISOString(),
+      decisionKey,
       applicationId: rejectModal.applicationId,
       applicantName: rejectModal.name,
       applicantEmail: rejectModal.email,
@@ -247,7 +275,7 @@ function DriverCourierApprovalPage() {
       channels: ['email', 'push'],
     }
     setAdminLog((prev) => [logEntry, ...prev].slice(0, 40))
-    setDecisionById((prev) => ({ ...prev, [rejectModal.applicationId]: 'reject' }))
+    setDecisionById((prev) => ({ ...prev, [decisionKey]: 'reject' }))
     closeRejectModal()
     setToast({
       type: 'success',
@@ -265,7 +293,10 @@ function DriverCourierApprovalPage() {
         </div>
       </header>
 
-      <p className="approval-strip-label">Takvim</p>
+      <div className="approval-strip-head">
+        <p className="approval-strip-label">Takvim</p>
+        <p className="approval-strip-hint">Tüm günleri görmek için yatay kaydırın</p>
+      </div>
 
       <div
         className="approval-day-strip"
@@ -291,110 +322,176 @@ function DriverCourierApprovalPage() {
       </div>
 
       <div className="approval-tabs">
-        <div className="approval-tabs__track">
-          <button
-            type="button"
-            className={`approval-tabs__pill${activeTab === 'driver' ? ' approval-tabs__pill--active' : ''}`}
-            onClick={() => setActiveTab('driver')}
-          >
-            Sürücü
-          </button>
-          <button
-            type="button"
-            className={`approval-tabs__pill${activeTab === 'courier' ? ' approval-tabs__pill--active' : ''}`}
-            onClick={() => setActiveTab('courier')}
-          >
-            Kurye
-          </button>
+        <div className="approval-tabs__groups">
+          <div className="approval-tabs__track">
+            <button
+              type="button"
+              className={`approval-tabs__pill${activeTab === 'driver' ? ' approval-tabs__pill--active' : ''}`}
+              onClick={() => setActiveTab('driver')}
+            >
+              Sürücü
+            </button>
+            <button
+              type="button"
+              className={`approval-tabs__pill${activeTab === 'courier' ? ' approval-tabs__pill--active' : ''}`}
+              onClick={() => setActiveTab('courier')}
+            >
+              Kurye
+            </button>
+          </div>
+          <div className="approval-tabs__track approval-tabs__track--reject">
+            <button
+              type="button"
+              className={`approval-tabs__pill approval-tabs__pill--reject${activeTab === 'rejected-driver' ? ' approval-tabs__pill--active' : ''}`}
+              onClick={() => setActiveTab('rejected-driver')}
+            >
+              Reddedilen Sürücüler
+            </button>
+            <button
+              type="button"
+              className={`approval-tabs__pill approval-tabs__pill--reject${activeTab === 'rejected-courier' ? ' approval-tabs__pill--active' : ''}`}
+              onClick={() => setActiveTab('rejected-courier')}
+            >
+              Reddedilen Kuryeler
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="approval-list-shell">
-        <div className="approval-list">
-          {applications.map((app) => (
-            <article key={app.id} className="approval-row">
-              <img className="approval-row__photo" src={ROLE_ASSET[activeTab]} alt="" width={96} height={96} />
-              <div className="approval-row__body">
-                <h2 className="approval-row__name">{app.name}</h2>
-                <div className="approval-info-grid">
-                  <InfoItem label="Telefon Numarası" value={app.phone} />
-                  <InfoItem label="Ad" value={app.firstName} />
-                  <InfoItem label="Soyad" value={app.lastName} />
-                  <InfoItem label="E-posta Adresi" value={app.email} />
-                  <InfoItem label="GSM Numarası" value={app.gsm} />
-                  <InfoItem label="Cinsiyet" value={app.gender} />
-                  <InfoItem label="IBAN Numarası" value={app.iban} />
+      {!isRejectedTab ? (
+        <div className="approval-list-shell">
+          <div className="approval-list">
+            {applications.map((app) => {
+              const decision = decisionById[getDecisionKey(activeRole, app.id)]
+              return (
+                <article key={app.id} className="approval-row">
+                  <img className="approval-row__photo" src={ROLE_ASSET[activeRole]} alt="" width={96} height={96} />
+                  <div className="approval-row__body">
+                    <h2 className="approval-row__name">{app.name}</h2>
+                    <div className="approval-info-grid">
+                      <InfoItem label="Telefon Numarası" value={app.phone} />
+                      <InfoItem label="Ad" value={app.firstName} />
+                      <InfoItem label="Soyad" value={app.lastName} />
+                      <InfoItem label="E-posta Adresi" value={app.email} />
+                      <InfoItem label="GSM Numarası" value={app.gsm} />
+                      <InfoItem label="Cinsiyet" value={app.gender} />
+                      <InfoItem label="IBAN Numarası" value={app.iban} />
 
-                  {activeTab === 'courier' && (
-                    <>
-                      <InfoItem label="Araç Tipi" value={app.vehicleType} />
-                      <InfoItem label="Marka" value={app.vehicleBrand} />
-                      <InfoItem label="Model" value={app.vehicleModel} />
-                      <InfoItem label="Yıl" value={app.vehicleYear} />
-                      <InfoItem label="Renk" value={app.vehicleColor} />
-                    </>
-                  )}
+                      {activeRole === 'courier' && (
+                        <>
+                          <InfoItem label="Araç Tipi" value={app.vehicleType} />
+                          <InfoItem label="Marka" value={app.vehicleBrand} />
+                          <InfoItem label="Model" value={app.vehicleModel} />
+                          <InfoItem label="Yıl" value={app.vehicleYear} />
+                          <InfoItem label="Renk" value={app.vehicleColor} />
+                        </>
+                      )}
 
-                  {activeTab === 'driver' && (
-                    <>
-                      <InfoItem label="Marka" value={app.vehicleBrand} />
-                      <InfoItem label="Model" value={app.vehicleModel} />
-                      <InfoItem label="Yıl" value={app.vehicleYear} />
-                      <InfoItem label="Renk" value={app.vehicleColor} />
-                      <InfoItem label="Plaka" value={app.plate} />
-                    </>
-                  )}
-                </div>
+                      {activeRole === 'driver' && (
+                        <>
+                          <InfoItem label="Marka" value={app.vehicleBrand} />
+                          <InfoItem label="Model" value={app.vehicleModel} />
+                          <InfoItem label="Yıl" value={app.vehicleYear} />
+                          <InfoItem label="Renk" value={app.vehicleColor} />
+                          <InfoItem label="Plaka" value={app.plate} />
+                        </>
+                      )}
+                    </div>
 
-                <div className="approval-docs">
-                  <h3 className="approval-docs__title">Yüklenen Belgeler</h3>
-                  <div className="approval-docs__grid">
-                    <DocumentItem label="Ehliyet Ön Yüzü" url={app.licenseFrontUrl} />
-                    <DocumentItem label="Ehliyet Arka Yüzü" url={app.licenseBackUrl} />
-                    <DocumentItem label="Ruhsat Ön Yüzü" url={app.registrationFrontUrl} />
-                    <DocumentItem label="Ruhsat Arka Yüzü" url={app.registrationBackUrl} />
-                    <DocumentItem label="Sabıka Kaydı" url={app.criminalRecordUrl} />
-                    {activeTab === 'courier' && <DocumentItem label="P1 Belgesi" url={app.p1DocumentUrl} />}
+                    <div className="approval-docs">
+                      <h3 className="approval-docs__title">Yüklenen Belgeler</h3>
+                      <div className="approval-docs__grid">
+                        <DocumentItem label="Ehliyet Ön Yüzü" url={app.licenseFrontUrl} />
+                        <DocumentItem label="Ehliyet Arka Yüzü" url={app.licenseBackUrl} />
+                        <DocumentItem label="Ruhsat Ön Yüzü" url={app.registrationFrontUrl} />
+                        <DocumentItem label="Ruhsat Arka Yüzü" url={app.registrationBackUrl} />
+                        <DocumentItem label="Sabıka Kaydı" url={app.criminalRecordUrl} />
+                        {activeRole === 'courier' && <DocumentItem label="P1 Belgesi" url={app.p1DocumentUrl} />}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div className="approval-row__side">
-                <div className="approval-dots" aria-label="Ön değerlendirme">
-                  <span className="approval-dots__item" />
-                  <span className="approval-dots__item" />
-                  <span className="approval-dots__item approval-dots__item--on" />
-                </div>
-                {decisionById[app.id] ? (
-                  <span
-                    className={`approval-result-pill approval-result-pill--${decisionById[app.id] === 'approve' ? 'approve' : 'reject'}`}
-                  >
-                    {decisionById[app.id] === 'approve' ? 'Onaylandı' : 'Reddedildi'}
-                  </span>
-                ) : (
-                  <div className="approval-actions">
-                    <button
-                      type="button"
-                      className="approval-btn approval-btn--approve"
-                      aria-label="Onayla"
-                      onClick={() => openApproveConfirm(app)}
-                    >
-                      <CheckIcon />
-                    </button>
-                    <button
-                      type="button"
-                      className="approval-btn approval-btn--reject"
-                      aria-label="Reddet"
-                      onClick={() => openRejectFlow(app)}
-                    >
-                      <XIcon />
-                    </button>
+                  <div className="approval-row__side">
+                    <div className="approval-dots" aria-label="Ön değerlendirme">
+                      <span className="approval-dots__item" />
+                      <span className="approval-dots__item" />
+                      <span className="approval-dots__item approval-dots__item--on" />
+                    </div>
+                    {decision ? (
+                      <span className={`approval-result-pill approval-result-pill--${decision === 'approve' ? 'approve' : 'reject'}`}>
+                        {decision === 'approve' ? 'Onaylandı' : 'Reddedildi'}
+                      </span>
+                    ) : (
+                      <div className="approval-actions">
+                        <button
+                          type="button"
+                          className="approval-btn approval-btn--approve"
+                          aria-label="Onayla"
+                          onClick={() => openApproveConfirm(app)}
+                        >
+                          <CheckIcon />
+                        </button>
+                        <button
+                          type="button"
+                          className="approval-btn approval-btn--reject"
+                          aria-label="Reddet"
+                          onClick={() => openRejectFlow(app)}
+                        >
+                          <XIcon />
+                        </button>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </article>
-          ))}
+                </article>
+              )
+            })}
+          </div>
         </div>
-      </div>
+      ) : (
+        <section className="approval-rejected-shell" aria-label="Reddedilen başvurular tablosu">
+          <header className="approval-rejected-head">
+            <h2 className="approval-rejected-title">
+              {activeTab === 'rejected-driver' ? 'Reddedilen Sürücüler' : 'Reddedilen Kuryeler'}
+            </h2>
+            <p className="approval-rejected-sub">Ret işlemi verilen kayıtlar “Reddedilmiş” durumunda listelenir.</p>
+          </header>
+          {rejectedApplications.length === 0 ? (
+            <p className="approval-rejected-empty">Henüz reddedilmiş kayıt bulunmuyor.</p>
+          ) : (
+            <div className="approval-rejected-table-wrap">
+              <table className="approval-rejected-table">
+                <thead>
+                  <tr>
+                    <th>Kullanıcı</th>
+                    <th>E-posta</th>
+                    <th>Telefon</th>
+                    <th>Red tarihi</th>
+                    <th>Neden</th>
+                    <th>Durum</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rejectedApplications.map((app) => {
+                    const decisionKey = getDecisionKey(activeRole, app.id)
+                    const rejectLog = latestRejectLogByKey.get(decisionKey)
+                    return (
+                      <tr key={app.id}>
+                        <td>{app.name}</td>
+                        <td>{app.email || '—'}</td>
+                        <td>{app.phone || '—'}</td>
+                        <td>{rejectLog ? formatLogTime(new Date(rejectLog.at)) : '—'}</td>
+                        <td>{rejectLog?.reasons?.length ? rejectLog.reasons.join(' · ') : '—'}</td>
+                        <td>
+                          <span className="approval-result-pill approval-result-pill--reject">Reddedilmiş</span>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      )}
 
       <section className="approval-log" aria-label="Yönetici işlem günlüğü">
         <div className="approval-log__head">

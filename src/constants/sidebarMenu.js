@@ -6,6 +6,7 @@ export const sidebarSections = [
   {
     title: null,
     items: [
+      { label: 'Bölgesel dağılım', path: '/dashboard/regional-distribution' },
       { label: 'Anasayfa', path: '/dashboard/transactions' },
       { label: 'Sürücü / Kurye Onayı', path: '/dashboard/driver-courier-approval' },
       { label: 'Yolculuk / Teslimat Takibi', path: '/dashboard/delivery-tracking' },
@@ -20,6 +21,7 @@ export const sidebarSections = [
       { label: 'SSS yönetimi', path: '/dashboard/app/faq' },
       { label: 'Araç bilgileri', path: '/dashboard/app/vehicles' },
       { label: 'Sözleşmeler', path: '/dashboard/app/contracts' },
+      { label: 'Ücret & indirim ayarları', path: '/dashboard/app/pricing-settings' },
     ],
   },
 ]

@@ -10,8 +10,13 @@
 }
 
 @media (max-width: 1024px) {
+  /* Sidebar mobil üst bar (.sidebar-mobile-topbar) ile aynı yükseklik + iç boşluk */
   .dashboard-content {
     margin-left: 0;
     padding: 20px;
+    padding-top: calc(16px + var(--sidebar-topbar-h, calc(62px + env(safe-area-inset-top, 0px))));
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
   }
 }

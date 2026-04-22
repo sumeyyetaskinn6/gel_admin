@@ -232,6 +232,10 @@ function HistoryRecordsPage() {
         </div>
       </div>
 
+      <p className="hr-table-hint" aria-hidden="true">
+        Tüm sütunları görmek için tabloyu yatay kaydırın.
+      </p>
+
       <div className="hr-table-card">
         <div className="hr-table-scroll">
           <table className="hr-table">
@@ -256,25 +260,25 @@ function HistoryRecordsPage() {
               ) : (
                 filtered.map((row) => (
                   <tr key={row.id}>
-                    <td className="hr-table__type">
+                    <td className="hr-table__type" data-label="Tür">
                       <img
                         src={row.serviceType === 'trip' ? '/carrr.png' : '/bike.png'}
                         alt=""
                         className="hr-type-img"
                       />
                     </td>
-                    <td>
+                    <td data-label="Tarih">
                       <time dateTime={row.completedAt} className="hr-table__time">
                         {formatDateTime(row.completedAt)}
                       </time>
                     </td>
-                    <td>
+                    <td data-label="Kullanıcı">
                       <div className="hr-user">
                         <span className="hr-user__name">{row.userName}</span>
                         <span className="hr-user__id">{row.userPublicId}</span>
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Sürücü / kurye">
                       <div className="hr-provider">
                         <span
                           className={`hr-pill hr-pill--${row.providerRole === 'driver' ? 'trip' : 'delivery'}`}
@@ -284,11 +288,13 @@ function HistoryRecordsPage() {
                         <span className="hr-provider__name">{row.providerName}</span>
                       </div>
                     </td>
-                    <td className="hr-table__fee">{row.feeLabel}</td>
-                    <td>
+                    <td className="hr-table__fee" data-label="Ücret">
+                      {row.feeLabel}
+                    </td>
+                    <td data-label="Durum">
                       <span className="hr-status">Tamamlandı</span>
                     </td>
-                    <td>
+                    <td data-label="İşlem">
                       <button type="button" className="hr-btn-detail" onClick={() => setDetail(row)}>
                         Detay görüntüle
                       </button>

@@ -1,19 +1,103 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { sidebarSections } from '../constants/sidebarMenu'
 import './Sidebar.css'
 
+function HamburgerIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function CloseIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 function Sidebar({ onLogout }) {
   const location = useLocation()
   const [mobileAppsOpen, setMobileAppsOpen] = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
   const isMobileAppsRoute = location.pathname.startsWith('/dashboard/app')
   const isMobileAppsOpen = mobileAppsOpen || isMobileAppsRoute
 
+  useEffect(() => {
+    setDrawerOpen(false)
+  }, [location.pathname])
+
+  useEffect(() => {
+    if (!drawerOpen) return
+    const mq = window.matchMedia('(max-width: 1024px)')
+    if (!mq.matches) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [drawerOpen])
+
+  useEffect(() => {
+    if (!drawerOpen) return
+    const onKey = (e) => {
+      if (e.key === 'Escape') setDrawerOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [drawerOpen])
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1025px)')
+    const onChange = () => {
+      if (mq.matches) setDrawerOpen(false)
+    }
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+
+  const closeDrawer = () => setDrawerOpen(false)
+
   return (
-    <aside className="sidebar">
+    <>
+      <header className="sidebar-mobile-topbar">
+        <button
+          type="button"
+          className="sidebar-burger"
+          aria-label={drawerOpen ? 'Menüyü kapat' : 'Menüyü aç'}
+          aria-expanded={drawerOpen}
+          aria-controls="dashboard-sidebar"
+          onClick={() => setDrawerOpen((o) => !o)}
+        >
+          {drawerOpen ? <CloseIcon /> : <HamburgerIcon />}
+        </button>
+        <span className="sidebar-mobile-topbar__title">Gel Yönetim</span>
+      </header>
+
+      {drawerOpen ? (
+        <div className="sidebar-backdrop" role="presentation" aria-hidden onClick={closeDrawer} />
+      ) : null}
+
+      <aside
+        id="dashboard-sidebar"
+        className={`sidebar${drawerOpen ? ' sidebar--open' : ''}`}
+      >
       <div className="sidebar-inner">
         <div className="sidebar-top">
-          <img className="sidebar-logo" src="/logo.png" alt="Gel uygulama logosu" />
+          <div className="sidebar-brand-row">
+            <img className="sidebar-logo" src="/logo.png" alt="Gel uygulama logosu" />
+            <button
+              type="button"
+              className="sidebar-drawer-close"
+              aria-label="Menüyü kapat"
+              onClick={closeDrawer}
+            >
+              <CloseIcon />
+            </button>
+          </div>
 
           <div className="sidebar-nav-stack">
             {sidebarSections.map((section) => {
@@ -51,6 +135,7 @@ function Sidebar({ onLogout }) {
                           <NavLink
                             key={item.path}
                             to={item.path}
+                            onClick={closeDrawer}
                             className={({ isActive }) =>
                               `sidebar-menu-item sidebar-menu-item--nested${isActive ? ' sidebar-menu-item--active' : ''}`
                             }
@@ -76,6 +161,7 @@ function Sidebar({ onLogout }) {
                       <NavLink
                         key={item.path}
                         to={item.path}
+                        onClick={closeDrawer}
                         className={({ isActive }) =>
                           `sidebar-menu-item${isActive ? ' sidebar-menu-item--active' : ''}`
                         }
@@ -93,6 +179,7 @@ function Sidebar({ onLogout }) {
         <div className="sidebar-bottom">
           <NavLink
             to="/dashboard/admin-profile"
+            onClick={closeDrawer}
             className={({ isActive }) => `sidebar-profile${isActive ? ' sidebar-profile--active' : ''}`}
             aria-label="Admin profil sayfasını aç"
           >
@@ -113,6 +200,7 @@ function Sidebar({ onLogout }) {
         </div>
       </div>
     </aside>
+    </>
   )
 }
 

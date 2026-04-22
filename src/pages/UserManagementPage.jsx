@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MOCK_BY_ROLE, formatKayitTarihi } from '../data/userManagementMock'
 import './UserManagementPage.css'
@@ -49,6 +49,16 @@ function Td({ children, title, className = '' }) {
   )
 }
 
+function resolveInitialActive(user) {
+  if (typeof user?.isActive === 'boolean') return user.isActive
+  if (typeof user?.active === 'boolean') return user.active
+  if (typeof user?.status === 'string') {
+    const normalized = user.status.toLowerCase()
+    return normalized === 'active' || normalized === 'aktif'
+  }
+  return true
+}
+
 function DocumentStrip({ user, role }) {
   if (role !== 'driver' && role !== 'courier') return <Td title="—">—</Td>
 
@@ -76,7 +86,7 @@ function DocumentStrip({ user, role }) {
             title={doc.label}
             aria-label={doc.label}
           >
-            <img src={doc.url} alt="" width={32} height={32} />
+            <img src="/document.svg" alt="" className="um-doc-thumb__icon" width={18} height={18} />
           </a>
         ))}
       </div>
@@ -84,11 +94,18 @@ function DocumentStrip({ user, role }) {
   )
 }
 
+function getUserDisplayName(user) {
+  const fullName = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()
+  return user?.name || fullName || 'Bu kullanıcı'
+}
+
 function UserManagementPage() {
   const navigate = useNavigate()
   const [roleTab, setRoleTab] = useState('driver')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedIds, setSelectedIds] = useState(() => new Set())
+  const [accountStatusByRole, setAccountStatusByRole] = useState({})
+  const [statusConfirm, setStatusConfirm] = useState(null)
 
   const rows = useMemo(() => {
     const list = MOCK_BY_ROLE[roleTab] ?? []
@@ -139,6 +156,56 @@ function UserManagementPage() {
 
   const openDetail = (userId) => {
     navigate(`/dashboard/user-management/${roleTab}/${userId}`)
+  }
+
+  useEffect(() => {
+    if (!statusConfirm) return
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') setStatusConfirm(null)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [statusConfirm])
+
+  const isAccountActive = (role, user) => {
+    const fromState = accountStatusByRole[role]?.[user.id]
+    if (typeof fromState === 'boolean') return fromState
+    return resolveInitialActive(user)
+  }
+
+  const toggleAccountStatus = (role, user) => {
+    setAccountStatusByRole((prev) => {
+      const current = typeof prev[role]?.[user.id] === 'boolean' ? prev[role][user.id] : resolveInitialActive(user)
+      return {
+        ...prev,
+        [role]: {
+          ...(prev[role] ?? {}),
+          [user.id]: !current,
+        },
+      }
+    })
+  }
+
+  const requestToggleAccountStatus = (role, user) => {
+    const current = isAccountActive(role, user)
+    setStatusConfirm({
+      role,
+      userId: user.id,
+      userName: getUserDisplayName(user),
+      nextActive: !current,
+    })
+  }
+
+  const confirmToggleAccountStatus = () => {
+    if (!statusConfirm) return
+    setAccountStatusByRole((prev) => ({
+      ...prev,
+      [statusConfirm.role]: {
+        ...(prev[statusConfirm.role] ?? {}),
+        [statusConfirm.userId]: statusConfirm.nextActive,
+      },
+    }))
+    setStatusConfirm(null)
   }
 
   const tableClass =
@@ -251,13 +318,20 @@ function UserManagementPage() {
                   </>
                 )}
                 <Th className="um-th--date">Kayıt tarihi</Th>
+                <th scope="col" className="um-th um-th--status">
+                  <span className="um-th__inner um-th__inner--muted um-th__inner--nosort">Hesap durumu</span>
+                </th>
                 <th scope="col" className="um-th um-th--action">
                   <span className="um-th__inner um-th__inner--muted um-th__inner--nosort">İşlem</span>
                 </th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
+              {rows.map((row) => {
+                const userIsActive = isAccountActive(roleTab, row)
+                const userDisplayName = getUserDisplayName(row)
+
+                return (
                 <tr key={row.id} className="um-tr">
                   <td className="um-td um-td--check">
                     <input
@@ -299,17 +373,59 @@ function UserManagementPage() {
                   <Td className="um-td--date">
                     <time dateTime={row.registeredAt}>{formatKayitTarihi(row.registeredAt)}</time>
                   </Td>
+                  <td className="um-td um-td--status">
+                    <button
+                      type="button"
+                      className={`um-status-toggle${userIsActive ? ' um-status-toggle--active' : ''}`}
+                      onClick={() => requestToggleAccountStatus(roleTab, row)}
+                      aria-pressed={userIsActive}
+                      aria-label={`${userDisplayName} hesabını ${userIsActive ? 'pasif' : 'aktif'} yap`}
+                    >
+                      <span className="um-status-toggle__track">
+                        <span className="um-status-toggle__thumb" />
+                      </span>
+                      <span className="um-status-toggle__label">{userIsActive ? 'Aktif' : 'Pasif'}</span>
+                    </button>
+                  </td>
                   <td className="um-td um-td--action">
                     <button type="button" className="um-action-btn" onClick={() => openDetail(row.id)}>
                       Detay
                     </button>
                   </td>
                 </tr>
-              ))}
+              )})}
             </tbody>
           </table>
         </div>
       </div>
+
+      {statusConfirm ? (
+        <div className="um-confirm-backdrop" role="presentation" onClick={() => setStatusConfirm(null)}>
+          <div
+            className="um-confirm-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="um-confirm-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <h2 id="um-confirm-title" className="um-confirm-modal__title">
+              Emin misiniz?
+            </h2>
+            <p className="um-confirm-modal__text">
+              <strong>{statusConfirm.userName}</strong> hesabını{' '}
+              <strong>{statusConfirm.nextActive ? 'aktif' : 'pasif'}</strong> yapmak istediğinize emin misiniz?
+            </p>
+            <div className="um-confirm-modal__actions">
+              <button type="button" className="um-confirm-btn um-confirm-btn--ghost" onClick={() => setStatusConfirm(null)}>
+                Vazgeç
+              </button>
+              <button type="button" className="um-confirm-btn um-confirm-btn--primary" onClick={confirmToggleAccountStatus}>
+                Evet, değiştir
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   )
 }
